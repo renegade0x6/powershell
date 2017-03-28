@@ -1,0 +1,25 @@
+$txt1 = get-content -Path C:\Users\r6\Desktop\email_lookup\LeakedEmails.txt
+$alist = "Name`tEmail`tAccountName`tDisplayName`tTitle`tOffice`tOrganization`tDivision`tDepartment`tDescription`tManager`tDomain`tBreachDate`tAddedDate`tDescription`n"
+
+foreach ($line in $txt1) {
+    $user_data = $NULL
+    $pwn_data = $NULL
+    start-sleep 2
+    $user_data = get-aduser -Filter "EmailAddress -eq '$line'" -Properties EmailAddress
+    $temp = @{}
+    $temp.Name = $user_data.Name
+    $temp.SamAccountName = $user_data.SamAccountName
+    remove-variable user_info -ErrorAction Ignore
+    $user_info = get-aduser $temp.SamAccountName -Properties * | Select-Object Enabled,Name,EmailAddress,SamAccountName,DisplayName,Title,Office,Organization,Division,Department,Description,Manager
+    if ($user_info.Enabled -eq $true) {
+        try { $pwn_data = Invoke-RestMethod -UseBasicParsing -URI https://haveibeenpwned.com/api/v2/breachedaccount/$line
+ } catch {
+        Write-Host "StatusCode:" $_.Exception.Response.StatusCode.value__ 
+        Write-Host "StatusDescription:" $_.Exception.Response.StatusDescription}
+        $arec = $user_info.Name,$user_info.EmailAddress,$user_info.SamAccountName,$user_info.DisplayName,$user_info.Title,$user_info.Office,$user_info.Organization,$user_info.Division,$user_info.Department,$user_info.Description,$user_info.Manager
+        $apwn = $pwn_data.Domain,$pwn_data.BreachDate,$pwn_data.AddedDate,$pwn_data.Description
+        $aline = ($arec -join "`t") + "`t" + ($apwn -join "`t") + "`n"
+        $alist += $aline
+        }
+        $alist | out-file C:\Users\r6\Desktop\email_lookup\testing.csv
+        }
