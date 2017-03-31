@@ -14,8 +14,8 @@ foreach ($line in $txt1) {
     if ($user_info.Enabled -eq $true) {
         try { $pwn_data = Invoke-RestMethod -UseBasicParsing -URI https://haveibeenpwned.com/api/v2/breachedaccount/$line
  } catch {
-        Write-Host "StatusCode:" $_.Exception.Response.StatusCode.value__ 
-        Write-Host "StatusDescription:" $_.Exception.Response.StatusDescription}
+        Write-Output "StatusCode:" $_.Exception.Response.StatusCode.value__ 
+        Write-Output "StatusDescription:" $_.Exception.Response.StatusDescription}
         $arec = $user_info.Name,$user_info.EmailAddress,$user_info.SamAccountName,$user_info.DisplayName,$user_info.Title,$user_info.Office,$user_info.Organization,$user_info.Division,$user_info.Department,$user_info.Description,$user_info.Manager
         $apwn = $pwn_data.Domain,$pwn_data.BreachDate,$pwn_data.AddedDate,$pwn_data.Description
         $aline = ($arec -join "`t") + "`t" + ($apwn -join "`t") + "`n"
